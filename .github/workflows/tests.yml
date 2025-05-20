@@ -8,3 +8,20 @@ jobs:
     steps:
       - run: |
           echo "Tests passed"
+
+  build-artifacts:
+    needs:
+      - tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save RUN number
+        env:
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          mkdir -p ./run
+          echo $RUN_NUMBER > ./run/run_number
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: run_number
+          path: run/

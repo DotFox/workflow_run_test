@@ -16,7 +16,7 @@ runs:
             run_id: context.payload.workflow_run.id,
           });
           let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
-            return artifact.name == "pr_number"
+            return artifact.name == "run_number"
           })[0];
           let download = await github.rest.actions.downloadArtifact({
             owner: context.repo.owner,
@@ -26,17 +26,17 @@ runs:
           });
           const fs = require('fs');
           const path = require('path');
-          const temp = '${{ runner.temp }}/artifacts';
+          const temp = '${{ runner.temp }}';
           if (!fs.existsSync(temp)){
             fs.mkdirSync(temp);
           }
-          fs.writeFileSync(path.join(temp, 'pr_number.zip'), Buffer.from(download.data));
+          fs.writeFileSync(path.join(temp, 'run_number.zip'), Buffer.from(download.data));
+
+    - shell: bash
+      run: |
+        echo ${{ toJSON(github.event) }}
 
     - name: 'Unzip artifact'
       shell: bash
-      run: unzip pr_number.zip -d "${{ runner.temp }}/artifacts"
-
-    - name: 'Inspect artifact'
-      shell: bash
       run: |
-        cat ${{ runner.temp }}/artifacts/pr_number
+        unzip ${{ runner.temp }}/run_number.zip -d "${{ runner.temp }}/artifacts"
